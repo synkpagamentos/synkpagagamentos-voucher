@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synk — Cadastrar Voucher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        oklch(96% 0.03 122);
+    --card:      oklch(40% 0.10 128);
+    --card-dark: oklch(33% 0.09 128);
+    --green:     oklch(40% 0.13 130);
+    --lime:      oklch(80% 0.22 122);
+    --lime-bg:   oklch(88% 0.18 122);
+    --text:      oklch(13% 0.025 110);
+    --text-light:oklch(82% 0.07 120);
+    --text-dim:  oklch(65% 0.06 125);
+    --border:    oklch(50% 0.08 128 / 0.4);
+    --field-bg:  oklch(37% 0.09 128);
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans:  'DM Sans', Helvetica, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    font-family: var(--sans);
+    font-weight: 300;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      linear-gradient(to bottom right, oklch(13% 0.025 110 / 0.55), oklch(35% 0.09 128 / 0.45)),
+      url('assets/dashboard-bg.jpg') center center / cover no-repeat;
+  }
+
+  header {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 48px; z-index: 10;
+  }
+  .logo {
+    font-family: var(--serif); font-size: 1.35rem;
+    font-weight: 700; letter-spacing: 0.1em;
+    color: var(--text); text-decoration: none;
+  }
+  .logo span { color: var(--green); }
+  .header-links {
+    display: flex; gap: 28px; align-items: center; list-style: none;
+  }
+  .header-links a {
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;
+  }
+  .header-links a:hover { opacity: 1; }
+  .header-links .active { opacity: 1; color: var(--green); font-weight: 500; }
+  .btn-sair {
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text); opacity: 0.4; background: none; border: none;
+    cursor: pointer; font-family: var(--sans); transition: opacity 0.2s;
+  }
+  .btn-sair:hover { opacity: 0.8; }
+
+  .topo-bg { display: none; }
+  .topo-left {
+    position: absolute; left: -40px; top: 50%; transform: translateY(-50%);
+    width: 340px; opacity: 0.22;
+  }
+  .topo-right {
+    position: absolute; right: -40px; top: 50%; transform: translateY(-50%) scaleX(-1);
+    width: 340px; opacity: 0.22;
+  }
+
+  /* Stage */
+  .stage {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 1; padding: 100px 24px 60px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    width: 480px;
+    padding: 48px;
+    position: relative;
+    box-shadow: 0 24px 64px oklch(13% 0.025 110 / 0.18);
+    opacity: 1;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--lime);
+  }
+  .card-title {
+    font-family: var(--serif); font-style: italic;
+    font-size: 1.5rem; font-weight: 400; color: var(--lime);
+    margin-bottom: 8px; letter-spacing: -0.01em;
+  }
+  .card-subtitle {
+    font-size: 0.76rem; color: var(--text-dim); letter-spacing: 0.04em;
+    margin-bottom: 32px; line-height: 1.6;
+  }
+
+  /* Summary bar */
+  .summary-bar {
+    display: flex; gap: 2px; margin-bottom: 28px;
+  }
+  .summary-item {
+    flex: 1; background: var(--card-dark); padding: 14px 16px;
+    border-top: 2px solid transparent; transition: border-color 0.3s;
+  }
+  .summary-item.highlight { border-top-color: var(--lime); }
+  .summary-label {
+    font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 6px;
+  }
+  .summary-value {
+    font-family: var(--serif); font-size: 1.2rem; font-weight: 400;
+    color: var(--lime); line-height: 1;
+  }
+
+  /* Fields */
+  .field-group { margin-bottom: 18px; }
+  .field-label {
+    display: block; font-size: 0.65rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;
+  }
+  .field-wrap { position: relative; }
+  .field-input {
+    width: 100%; background: var(--field-bg);
+    border: 1px solid var(--border);
+    padding: 13px 44px 13px 16px;
+    font-size: 0.88rem; font-family: var(--sans);
+    color: var(--text-light); outline: none;
+    transition: border-color 0.2s; appearance: none;
+  }
+  .field-input::placeholder { color: oklch(65% 0.05 125 / 0.45); }
+  .field-input:focus { border-color: var(--lime); }
+  .field-input[type="number"] { -moz-appearance: textfield; }
+  .field-input[type="number"]::-webkit-inner-spin-button,
+  .field-input[type="number"]::-webkit-outer-spin-button { opacity: 0; }
+
+  .field-icon {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--text-dim); pointer-events: none;
+  }
+
+  /* Two column row */
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+
+  /* Tipo de voucher toggle */
+  .tipo-options { display: flex; gap: 8px; }
+  .tipo-btn {
+    flex: 1; background: var(--field-bg); border: 1px solid var(--border);
+    padding: 12px; text-align: center;
+    font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-dim); cursor: pointer; transition: all 0.18s;
+    font-family: var(--sans);
+  }
+  .tipo-btn.active {
+    border-color: var(--lime); color: var(--lime);
+    background: oklch(40% 0.13 130 / 0.15);
+  }
+
+  /* Total preview */
+  .total-preview {
+    background: var(--card-dark); padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; margin-top: 4px;
+  }
+  .total-label {
+    font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .total-value {
+    font-family: var(--serif); font-size: 1.4rem; font-weight: 400;
+    color: var(--lime);
+  }
+
+  .btn-submit {
+    width: 100%; margin-top: 4px;
+    background: var(--text); color: #fff; border: none; padding: 17px;
+    font-family: var(--sans); font-size: 0.82rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-submit:hover { background: var(--green); }
+
+  /* Success overlay */
+  .success-overlay {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    background: oklch(96% 0.03 122 / 0.95);
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px; text-align: center;
+  }
+  .success-overlay.visible { display: flex; animation: fadeIn 0.4s ease both; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .success-icon {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .success-icon svg { color: var(--lime); }
+  .success-title {
+    font-family: var(--serif); font-style: italic;
+    font-size: 2rem; color: var(--text);
+  }
+  .success-sub {
+    font-size: 0.85rem; color: var(--text-dim); max-width: 320px; line-height: 1.7;
+  }
+  .success-btns { display: flex; gap: 12px; margin-top: 8px; }
+  .btn-novo {
+    background: var(--green); color: #fff; border: none;
+    padding: 14px 32px; font-family: var(--sans); font-size: 0.78rem;
+    font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-novo:hover { background: oklch(55% 0.16 128); }
+  .btn-voltar {
+    background: transparent; color: var(--text); border: 1.5px solid var(--border);
+    padding: 12px 28px; font-family: var(--sans); font-size: 0.78rem;
+    font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: border-color 0.2s;
+    text-decoration: none; display: inline-block; line-height: 1.5;
+  }
+  .btn-voltar:hover { border-color: var(--text); }
+
+  @media (max-width: 600px) {
+    header { padding: 20px 24px; }
+    .card { width: 90vw; padding: 36px 28px; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">SYN<span>K</span></a>
+  <ul class="header-links">
+    <li><a href="index.html">Resgatar Voucher</a></li>
+    <li><a href="dashboard.html" class="active">Painel</a></li>
+    <li><button class="btn-sair" onclick="sair()">Sair</button></li>
+  </ul>
+</header>
+
+<div class="topo-bg" aria-hidden="true">
+  <svg class="topo-left" viewBox="0 0 300 500" fill="none">
+    <path d="M20 250 C40 180, 120 160, 140 250 C160 340, 80 380, 60 300 C40 220, 100 190, 120 260 C140 330, 100 360, 80 310" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-20 250 C10 160, 150 130, 180 250 C210 370, 60 420, 30 310 C0 200, 120 170, 150 270 C180 370, 90 400, 50 330" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-60 250 C-20 140, 180 100, 220 250 C260 400, 40 460, 0 320 C-40 180, 140 150, 180 280 C220 410, 80 440, 20 350" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-100 250 C-50 120, 210 70, 260 250 C310 430, 20 500, -30 330 C-80 160, 160 130, 210 290 C260 450, 70 480, -10 370" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-140 250 C-80 100, 240 40, 300 250 C360 460, 0 540, -60 340 C-120 140, 180 110, 240 300 C300 490, 60 520, -40 390" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+  </svg>
+  <svg class="topo-right" viewBox="0 0 300 500" fill="none">
+    <path d="M20 250 C40 180, 120 160, 140 250 C160 340, 80 380, 60 300 C40 220, 100 190, 120 260 C140 330, 100 360, 80 310" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-20 250 C10 160, 150 130, 180 250 C210 370, 60 420, 30 310 C0 200, 120 170, 150 270 C180 370, 90 400, 50 330" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-60 250 C-20 140, 180 100, 220 250 C260 400, 40 460, 0 320 C-40 180, 140 150, 180 280 C220 410, 80 440, 20 350" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-100 250 C-50 120, 210 70, 260 250 C310 430, 20 500, -30 330 C-80 160, 160 130, 210 290 C260 450, 70 480, -10 370" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-140 250 C-80 100, 240 40, 300 250 C360 460, 0 540, -60 340 C-120 140, 180 110, 240 300 C300 490, 60 520, -40 390" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+  </svg>
+</div>
+
+<main class="stage">
+  <div class="card">
+    <h1 class="card-title">cadastrar um novo voucher.</h1>
+
+    <!-- Valor -->
+    <div class="field-group">
+      <label class="field-label" for="valor">Valor do Voucher</label>
+      <div class="field-wrap">
+        <input class="field-input" type="number" id="valor" placeholder="R$ 0,00" min="0" step="0.01">
+        <span class="field-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Quantidade -->
+    <div class="field-group">
+      <label class="field-label" for="quantidade">Quantidade de Vouchers</label>
+      <div class="field-wrap">
+        <input class="field-input" type="number" id="quantidade" placeholder="1" min="1">
+        <span class="field-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M4 6h16M4 12h16M4 18h8"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Projeto -->
+    <div class="field-group">
+      <label class="field-label" for="projeto">Nome do Projeto</label>
+      <div class="field-wrap">
+        <input class="field-input" type="text" id="projeto" placeholder="ex: Projeto Verão">
+        <span class="field-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Vencimento -->
+    <div class="field-group" style="margin-bottom:28px;">
+      <label class="field-label" for="vencimento">Data de Vencimento</label>
+      <div class="field-wrap">
+        <input class="field-input" type="date" id="vencimento" placeholder="dd/mm/aaaa">
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="submeter()">Cadastrar Vouchers</button>
+  </div>
+</main>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-icon">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <h2 class="success-title">Vouchers cadastrados!</h2>
+  <p class="success-sub" id="success-msg">Os vouchers foram gerados com sucesso e estão prontos para distribuição.</p>
+  <div class="success-btns">
+    <button class="btn-novo" onclick="novoCadastro()">Novo Cadastro</button>
+    <a href="index.html" class="btn-voltar">Voltar ao Site</a>
+  </div>
+</div>
+
+<script>
+  function fmtBRL(n) {
+    return n.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+  }
+
+  // Pre-fill vencimento (30 days from today)
+  const next = new Date(); next.setDate(next.getDate() + 30);
+  document.getElementById('vencimento').value = next.toISOString().split('T')[0];
+
+  function submeter() {
+    const val = parseFloat(document.getElementById('valor').value) || 0;
+    const qty = parseInt(document.getElementById('quantidade').value) || 0;
+    const proj = document.getElementById('projeto').value.trim();
+    const venc = document.getElementById('vencimento').value;
+
+    let temErro = false;
+    [['valor', val], ['quantidade', qty], ['projeto', proj], ['vencimento', venc]].forEach(([id, v]) => {
+      const el = document.getElementById(id);
+      if (!v) { el.style.borderColor = 'oklch(60% 0.18 25)'; temErro = true; }
+      else { el.style.borderColor = ''; }
+    });
+    if (temErro) return;
+
+    const total = val * qty;
+    document.getElementById('success-msg').textContent =
+      `${qty} voucher${qty>1?'s':''} de ${fmtBRL(val)} cada — total de ${fmtBRL(total)} — cadastrados para o projeto "${proj}".`;
+
+    document.querySelector('.card').style.transition = 'opacity 0.3s';
+    document.querySelector('.card').style.opacity = '0';
+    setTimeout(() => { document.getElementById('success-overlay').classList.add('visible'); }, 300);
+  }
+
+  function novoCadastro() {
+    document.getElementById('success-overlay').classList.remove('visible');
+    document.querySelector('.card').style.opacity = '1';
+    document.getElementById('valor').value = '';
+    document.getElementById('quantidade').value = '';
+    document.getElementById('projeto').value = '';
+  }
+
+  function sair() {
+    window.location.href = 'login.html';
+  }
+</script>
+</body>
+</html>

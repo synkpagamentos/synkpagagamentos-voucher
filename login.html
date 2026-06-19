@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synk — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        oklch(96% 0.03 122);
+    --card:      oklch(40% 0.10 128);
+    --card-dark: oklch(33% 0.09 128);
+    --green:     oklch(40% 0.13 130);
+    --lime:      oklch(80% 0.22 122);
+    --lime-bg:   oklch(88% 0.18 122);
+    --text:      oklch(13% 0.025 110);
+    --text-light:oklch(80% 0.08 120);
+    --text-dim:  oklch(65% 0.06 125);
+    --border:    oklch(50% 0.08 128 / 0.4);
+    --field-bg:  oklch(37% 0.09 128);
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans:  'DM Sans', Helvetica, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    font-family: var(--sans);
+    font-weight: 300;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      linear-gradient(to bottom, oklch(10% 0.02 120 / 0.6), oklch(25% 0.07 128 / 0.5)),
+      url('assets/login-bg.jpg') center center / cover no-repeat;
+  }
+
+  /* ─── TOPO ─── */
+  header {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 48px; z-index: 10;
+  }
+  .logo {
+    font-family: var(--serif); font-size: 1.35rem;
+    font-weight: 700; letter-spacing: 0.1em;
+    color: var(--text); text-decoration: none;
+  }
+  .logo span { color: var(--green); }
+  .header-links {
+    display: flex; gap: 28px; align-items: center; list-style: none;
+  }
+  .header-links a {
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;
+  }
+  .header-links a:hover { opacity: 1; }
+  .header-links .active { opacity: 1; color: var(--green); font-weight: 500; }
+
+  /* ─── BG TOPOGRAPHY ─── */
+  .topo-bg { display: none; }
+  .topo-left {
+    position: absolute; left: -40px; top: 50%; transform: translateY(-50%);
+    width: 340px; opacity: 0.22;
+  }
+  .topo-right {
+    position: absolute; right: -40px; top: 50%; transform: translateY(-50%) scaleX(-1);
+    width: 340px; opacity: 0.22;
+  }
+
+  /* ─── STAGE ─── */
+  .stage {
+    height: 100vh; display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 1;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--card);
+    width: 440px;
+    padding: 48px;
+    position: relative;
+    box-shadow: 0 24px 64px oklch(13% 0.025 110 / 0.18);
+    opacity: 1;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--lime);
+  }
+  .card-title {
+    font-family: var(--serif); font-style: italic;
+    font-size: 1.75rem; font-weight: 400; color: var(--lime);
+    margin-bottom: 36px; letter-spacing: -0.01em;
+  }
+  .field-group { margin-bottom: 20px; }
+  .field-label {
+    display: block; font-size: 0.65rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;
+  }
+  .field-wrap {
+    position: relative;
+  }
+  .field-input {
+    width: 100%; background: var(--field-bg);
+    border: 1px solid var(--border);
+    padding: 13px 16px; font-size: 0.88rem;
+    font-family: var(--sans); color: var(--text-light);
+    outline: none; transition: border-color 0.2s;
+    appearance: none; -webkit-appearance: none;
+  }
+  .field-input::placeholder { color: oklch(65% 0.05 125 / 0.5); }
+  .field-input:focus { border-color: var(--lime); }
+  .field-icon {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--text-dim); cursor: pointer; font-size: 1rem;
+    transition: color 0.2s; user-select: none;
+  }
+  .field-icon:hover { color: var(--lime); }
+  .field-input.has-icon { padding-right: 44px; }
+
+  .btn-submit {
+    width: 100%; margin-top: 12px;
+    background: var(--text); color: #fff;
+    border: none; padding: 17px;
+    font-family: var(--sans); font-size: 0.82rem;
+    font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-submit:hover { background: var(--green); }
+
+  .card-footer {
+    margin-top: 24px; text-align: center;
+    font-size: 0.72rem; color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+  .card-footer a {
+    color: var(--lime); text-decoration: none;
+    border-bottom: 1px solid oklch(80% 0.22 122 / 0.3);
+    transition: border-color 0.2s;
+  }
+  .card-footer a:hover { border-color: var(--lime); }
+
+  /* error state */
+  .error-msg {
+    display: none; margin-top: 12px;
+    background: oklch(45% 0.15 20 / 0.2); border: 1px solid oklch(55% 0.15 20 / 0.4);
+    padding: 10px 14px;
+    font-size: 0.75rem; color: oklch(80% 0.1 30); letter-spacing: 0.04em;
+  }
+  .error-msg.visible { display: block; }
+
+  @media (max-width: 600px) {
+    header { padding: 20px 24px; }
+    .card { width: 90vw; padding: 36px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">SYN<span>K</span></a>
+  <ul class="header-links">
+    <li><a href="index.html">Resgatar Voucher</a></li>
+    <li><a href="login.html" class="active">Login</a></li>
+  </ul>
+</header>
+
+<!-- Topographic decoration -->
+<div class="topo-bg" aria-hidden="true">
+  <svg class="topo-left" viewBox="0 0 300 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 250 C40 180, 120 160, 140 250 C160 340, 80 380, 60 300 C40 220, 100 190, 120 260 C140 330, 100 360, 80 310" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-20 250 C10 160, 150 130, 180 250 C210 370, 60 420, 30 310 C0 200, 120 170, 150 270 C180 370, 90 400, 50 330" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-60 250 C-20 140, 180 100, 220 250 C260 400, 40 460, 0 320 C-40 180, 140 150, 180 280 C220 410, 80 440, 20 350" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-100 250 C-50 120, 210 70, 260 250 C310 430, 20 500, -30 330 C-80 160, 160 130, 210 290 C260 450, 70 480, -10 370" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-140 250 C-80 100, 240 40, 300 250 C360 460, 0 540, -60 340 C-120 140, 180 110, 240 300 C300 490, 60 520, -40 390" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+  </svg>
+  <svg class="topo-right" viewBox="0 0 300 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 250 C40 180, 120 160, 140 250 C160 340, 80 380, 60 300 C40 220, 100 190, 120 260 C140 330, 100 360, 80 310" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-20 250 C10 160, 150 130, 180 250 C210 370, 60 420, 30 310 C0 200, 120 170, 150 270 C180 370, 90 400, 50 330" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-60 250 C-20 140, 180 100, 220 250 C260 400, 40 460, 0 320 C-40 180, 140 150, 180 280 C220 410, 80 440, 20 350" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-100 250 C-50 120, 210 70, 260 250 C310 430, 20 500, -30 330 C-80 160, 160 130, 210 290 C260 450, 70 480, -10 370" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+    <path d="M-140 250 C-80 100, 240 40, 300 250 C360 460, 0 540, -60 340 C-120 140, 180 110, 240 300 C300 490, 60 520, -40 390" stroke="oklch(30% 0.09 40)" stroke-width="1.5" fill="none"/>
+  </svg>
+</div>
+
+<main class="stage">
+  <div class="card" role="main">
+    <h1 class="card-title">Faça o Login :) </h1>
+
+    <div class="field-group">
+      <label class="field-label" for="email">e-mail do administrador</label>
+      <div class="field-wrap">
+        <input class="field-input" type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="password">senha</label>
+      <div class="field-wrap">
+        <input class="field-input has-icon" type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+        <span class="field-icon" id="toggle-pw" title="Mostrar senha">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="error-msg" id="error-msg">E-mail ou senha incorretos. Tente novamente.</div>
+
+    <button class="btn-submit" id="btn-login">Entrar</button>
+
+    <p class="card-footer">
+      Esqueceu sua senha? <a href="#">Recuperar acesso</a>
+    </p>
+  </div>
+</main>
+
+<script>
+  // Toggle password visibility
+  document.getElementById('toggle-pw').addEventListener('click', function() {
+    const pw = document.getElementById('password');
+    const isText = pw.type === 'text';
+    pw.type = isText ? 'password' : 'text';
+    this.style.color = isText ? '' : 'oklch(80% 0.22 122)';
+  });
+
+  // Login — demo credentials: any email + "synk2026"
+  document.getElementById('btn-login').addEventListener('click', handleLogin);
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+
+  function handleLogin() {
+    const email = document.getElementById('email').value.trim();
+    const pw    = document.getElementById('password').value;
+    const err   = document.getElementById('error-msg');
+
+    if (!email || !pw) {
+      err.textContent = 'Preencha e-mail e senha para continuar.';
+      err.classList.add('visible');
+      return;
+    }
+    if (pw !== 'synk2026') {
+      err.textContent = 'E-mail ou senha incorretos. Tente novamente.';
+      err.classList.add('visible');
+      return;
+    }
+    err.classList.remove('visible');
+    // Animate out then redirect
+    document.querySelector('.card').style.transition = 'opacity 0.35s, transform 0.35s';
+    document.querySelector('.card').style.opacity = '0';
+    document.querySelector('.card').style.transform = 'translateY(-16px)';
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 380);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synk — Conecte-se e Participe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:        oklch(98.5% 0.005 90);
+    --bg-mid:    oklch(96%   0.008 100);
+    --bg-card:   oklch(97%   0.006 105);
+    --bg-dark:   oklch(13%   0.025 115);
+    --green:     oklch(40%   0.13  130);
+    --green-mid: oklch(55%   0.16  128);
+    --lime:      oklch(80%   0.22  122);
+    --lime-bg:   oklch(91%   0.12  122);
+    --text:      oklch(13%   0.025 110);
+    --text-muted:oklch(44%   0.015 100);
+    --text-dim:  oklch(64%   0.010 100);
+    --border:    oklch(13%   0.025 110 / 0.09);
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans:  'DM Sans', Helvetica, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 56px;
+    transition: background 0.4s, padding 0.3s, box-shadow 0.3s;
+  }
+  nav.over-hero {
+    color: #fff;
+  }
+  nav.scrolled {
+    background: oklch(98.5% 0.005 90 / 0.94);
+    backdrop-filter: blur(18px);
+    padding: 16px 56px;
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  nav.over-hero .nav-logo { color: #fff; }
+  nav:not(.over-hero) .nav-logo { color: var(--text); }
+  .nav-logo span { color: var(--green); }
+  nav.over-hero .nav-logo span { color: var(--lime); }
+
+  .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+  .nav-links a {
+    font-size: 0.78rem; font-weight: 400; letter-spacing: 0.1em;
+    text-transform: uppercase; text-decoration: none;
+    transition: color 0.2s, opacity 0.2s;
+  }
+  nav.over-hero .nav-links a { color: oklch(96% 0.005 90 / 0.75); }
+  nav.over-hero .nav-links a:hover { color: #fff; opacity: 1; }
+  nav:not(.over-hero) .nav-links a { color: var(--text-muted); }
+  nav:not(.over-hero) .nav-links a:hover { color: var(--text); }
+
+  .btn-voucher {
+    border: 1px solid currentColor !important;
+    padding: 8px 22px !important;
+    transition: background 0.2s, color 0.2s !important;
+  }
+  nav.over-hero .btn-voucher { color: #fff !important; }
+  nav.over-hero .btn-voucher:hover { background: #fff !important; color: var(--text) !important; }
+  nav:not(.over-hero) .btn-voucher { color: var(--green) !important; border-color: var(--green) !important; }
+  nav:not(.over-hero) .btn-voucher:hover { background: var(--green) !important; color: #fff !important; }
+
+  /* ─── HERO ─── */
+  .hero {
+    height: 100vh; min-height: 640px;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 56px 80px;
+  }
+
+  /* Photo placeholder — striped SVG */
+  .hero-photo {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to bottom, oklch(10% 0.02 120 / 0.45) 0%, oklch(10% 0.02 120 / 0.15) 40%, oklch(10% 0.02 120 / 0.72) 100%),
+      url('assets/hero-home.jpg') center center / cover no-repeat;
+  }
+  .hero-photo-label { display: none; }
+
+  .hero-content { position: relative; z-index: 1; max-width: 860px; }
+  .hero-eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--lime); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: inline-block; width: 28px; height: 1px; background: var(--lime);
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(3.8rem, 9.5vw, 8.5rem);
+    font-weight: 400; line-height: 0.95; letter-spacing: -0.02em;
+    color: #fff; margin-bottom: 48px;
+  }
+  .hero-title em { font-style: italic; color: var(--lime); }
+  .hero-bottom {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 40px;
+  }
+  .hero-tagline {
+    max-width: 380px; font-size: 0.82rem; line-height: 1.9;
+    color: oklch(95% 0.005 90 / 0.7);
+    letter-spacing: 0.03em; text-wrap: pretty;
+  }
+  .hero-tagline strong { color: var(--lime); font-weight: 500; }
+
+  .btn-primary {
+    display: inline-block;
+    background: var(--green); color: #fff;
+    font-family: var(--sans); font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
+    padding: 16px 40px; border: none; cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); }
+  .btn-outline {
+    display: inline-block;
+    background: transparent; color: var(--green);
+    font-family: var(--sans); font-size: 0.78rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none;
+    padding: 14px 36px; border: 1.5px solid var(--green); cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-outline:hover { background: var(--green); color: #fff; }
+
+  .hero-scroll-hint {
+    position: absolute; bottom: 36px; right: 56px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: oklch(95% 0.005 90 / 0.4); z-index: 1;
+  }
+  .scroll-line {
+    width: 1px; height: 44px;
+    background: linear-gradient(to bottom, oklch(95% 0.005 90 / 0.4), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(0.6)}
+  }
+
+  /* ─── SECTION BASE ─── */
+  .section-label {
+    font-size: 0.66rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before {
+    content: ''; display: inline-block; width: 18px; height: 1px; background: var(--green);
+  }
+  .section-h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 4.5vw, 4rem);
+    font-weight: 400; line-height: 1.1; letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .section-h2 em { font-style: italic; color: var(--green); }
+
+  hr.divider {
+    border: none; border-top: 1px solid var(--border); margin: 0 56px;
+  }
+
+  /* ─── INTRO STRIP ─── */
+  .intro-strip {
+    background: var(--lime-bg);
+    padding: 36px 56px;
+    display: flex; align-items: center; justify-content: space-between; gap: 48px;
+  }
+  .intro-strip p {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(1rem, 2vw, 1.35rem); color: var(--text); line-height: 1.5;
+    max-width: 700px;
+  }
+  .intro-strip .strip-tag {
+    font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--green); font-style: normal; font-family: var(--sans);
+    font-weight: 500; flex-shrink: 0;
+  }
+
+  /* ─── EMPRESAS ─── */
+  .empresas {
+    padding: 120px 56px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+  }
+  .empresas-text p {
+    color: var(--text-muted); font-size: 1rem; line-height: 1.9;
+    margin-top: 32px; max-width: 460px; text-wrap: pretty;
+  }
+  .features {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--border); border: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .feature {
+    background: var(--bg); padding: 36px 28px;
+    transition: background 0.2s;
+    border-top: 2px solid transparent;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .feature:hover { background: var(--lime-bg); border-top-color: var(--green); }
+  .feature-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--lime); margin-bottom: 20px;
+  }
+  .feature-title {
+    font-family: var(--serif); font-size: 1.05rem; font-weight: 500;
+    margin-bottom: 10px; color: var(--text);
+  }
+  .feature-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.75; }
+
+  /* ─── PULL QUOTE ─── */
+  .pull-quote {
+    background: var(--bg-dark); padding: 100px 56px;
+    display: flex; align-items: center; gap: 64px;
+  }
+  .pull-quote-num {
+    font-family: var(--serif); font-size: clamp(5rem, 14vw, 11rem);
+    font-weight: 400; color: oklch(80% 0.22 122 / 0.15);
+    line-height: 1; flex-shrink: 0; user-select: none;
+  }
+  .pull-quote-body {
+    border-left: 1px solid oklch(80% 0.22 122 / 0.25);
+    padding-left: 56px;
+  }
+  .pull-quote-body blockquote {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(1.2rem, 2.2vw, 1.75rem);
+    color: #fff; line-height: 1.65; margin-bottom: 24px;
+  }
+  .pull-quote-body cite {
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--lime); font-style: normal;
+  }
+
+  /* ─── PARTICIPANTES ─── */
+  .participantes {
+    padding: 120px 56px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+  }
+  .participantes-text p {
+    color: var(--text-muted); font-size: 1rem; line-height: 1.9;
+    margin-top: 32px; max-width: 460px; text-wrap: pretty;
+  }
+  .steps { margin-top: 48px; }
+  .step {
+    display: flex; gap: 24px; padding: 24px 0;
+    border-bottom: 1px solid var(--border); align-items: flex-start;
+  }
+  .step:first-child { border-top: 1px solid var(--border); }
+  .step-num {
+    font-family: var(--serif); font-size: 1.6rem; font-weight: 400;
+    color: var(--lime); line-height: 1; flex-shrink: 0; width: 36px;
+    opacity: 0.6;
+  }
+  .step-title {
+    font-weight: 500; font-size: 0.88rem; letter-spacing: 0.03em;
+    margin-bottom: 5px; color: var(--text);
+  }
+  .step-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.65; }
+
+  /* Voucher mockup */
+  .voucher-wrap { position: relative; }
+  .voucher-wrap::before {
+    content: '';
+    position: absolute; top: -24px; left: -24px; right: 24px; bottom: 24px;
+    background: var(--lime-bg); z-index: 0;
+  }
+  .voucher-mockup {
+    position: relative; z-index: 1;
+    background: #fff; border: 1px solid var(--border);
+    padding: 48px; box-shadow: 0 8px 40px oklch(13% 0.025 110 / 0.08);
+  }
+  .voucher-mockup::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--green);
+  }
+  .voucher-tag {
+    font-size: 0.64rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 8px;
+  }
+  .voucher-subtitle {
+    font-size: 0.78rem; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6;
+  }
+  .voucher-field { margin-bottom: 14px; }
+  .voucher-field label {
+    display: block; font-size: 0.66rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 6px; font-weight: 500;
+  }
+  .field-box {
+    background: var(--bg-mid); border: 1px solid var(--border);
+    padding: 13px 16px; font-size: 0.83rem; color: var(--text-muted);
+    font-family: var(--sans);
+  }
+  /* Real inputs in voucher form */
+  .voucher-mockup .field-input {
+    width: 100%; background: var(--bg-mid); border: 1px solid var(--border);
+    padding: 13px 16px; font-size: 0.83rem; color: var(--text);
+    font-family: var(--sans); outline: none; appearance: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .voucher-mockup .field-input::placeholder { color: oklch(60% 0.01 100); }
+  .voucher-mockup .field-input:focus { border-color: var(--green); background: #fff; }
+  .voucher-mockup .field-input.error { border-color: oklch(55% 0.18 25); background: oklch(95% 0.05 25); }
+  .select-wrap { position: relative; }
+  .select-wrap .select-arrow {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); pointer-events: none;
+  }
+  .field-select { padding-right: 40px !important; cursor: pointer; }
+
+  /* ─── MODAL ─── */
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: oklch(13% 0.025 110 / 0.55);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    padding: 24px;
+    animation: bdFade 0.2s ease both;
+  }
+  @keyframes bdFade { from { opacity: 0; } to { opacity: 1; } }
+  .modal-backdrop.visible { display: flex; }
+  .modal {
+    display: none;
+    background: #fff;
+    max-width: 440px; width: 100%;
+    padding: 48px 40px 36px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 24px 64px oklch(13% 0.025 110 / 0.25);
+    animation: modalIn 0.32s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .modal::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--green);
+  }
+  .modal.visible { display: block; }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-close {
+    position: absolute; top: 14px; right: 14px;
+    background: transparent; border: none; cursor: pointer;
+    font-size: 1.6rem; line-height: 1;
+    color: var(--text-dim); font-family: var(--sans); font-weight: 300;
+    width: 32px; height: 32px;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-icon {
+    width: 68px; height: 68px; border-radius: 50%;
+    margin: 0 auto 24px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .icon-warn    { background: oklch(94% 0.08 90); color: oklch(45% 0.15 75); }
+  .icon-error   { background: oklch(94% 0.06 25); color: oklch(48% 0.18 25); }
+  .icon-success { background: var(--lime-bg); color: var(--green); }
+  .modal-title {
+    font-family: var(--serif); font-size: 1.55rem; font-weight: 400;
+    color: var(--text); margin-bottom: 14px; letter-spacing: -0.01em;
+  }
+  .modal-title .smiley { color: var(--green); font-style: italic; }
+  .modal-text {
+    font-size: 0.88rem; color: var(--text-muted); line-height: 1.7;
+    max-width: 320px; margin: 0 auto 28px; text-wrap: pretty;
+  }
+  .modal-text strong { color: var(--text); font-weight: 600; }
+  .modal-btn {
+    background: var(--green); color: #fff; border: none;
+    padding: 14px 36px; font-family: var(--sans); font-size: 0.78rem;
+    font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .modal-btn:hover { background: var(--green-mid); }
+  .voucher-options { display: flex; gap: 8px; margin: 20px 0 24px; }
+  .voucher-option {
+    flex: 1; background: var(--bg-mid); border: 1px solid var(--border);
+    padding: 11px; text-align: center; font-size: 0.72rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); cursor: pointer; transition: all 0.18s;
+  }
+  .voucher-option.active {
+    border-color: var(--green); color: var(--green);
+    background: oklch(40% 0.13 130 / 0.07);
+  }
+  .voucher-btn {
+    width: 100%; background: var(--text); color: #fff; border: none;
+    padding: 17px; font-family: var(--sans); font-size: 0.78rem;
+    font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .voucher-btn:hover { background: var(--green); }
+
+  /* ─── SOBRE NÓS ─── */
+  .sobre {
+    padding: 120px 56px;
+    background: var(--bg-mid);
+  }
+  .sobre-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px; background: var(--border); border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+  .sobre-card {
+    background: var(--bg); padding: 48px 40px;
+    transition: background 0.2s;
+  }
+  .sobre-card:hover { background: #fff; }
+  .sobre-num {
+    font-size: 0.62rem; letter-spacing: 0.2em; color: var(--green);
+    text-transform: uppercase; margin-bottom: 24px; font-weight: 500;
+  }
+  .sobre-title {
+    font-family: var(--serif); font-size: 1.35rem; font-weight: 400;
+    line-height: 1.3; margin-bottom: 16px; color: var(--text);
+  }
+  .sobre-text {
+    font-size: 0.83rem; color: var(--text-muted); line-height: 1.85;
+  }
+  .sobre-bottom {
+    margin-top: 80px; padding-top: 56px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 40px;
+  }
+  .sobre-quote {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(1.1rem, 2.2vw, 1.7rem); color: var(--text);
+    line-height: 1.5; max-width: 580px;
+  }
+  .grupo-mob { text-align: right; flex-shrink: 0; }
+  .grupo-mob-label {
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 6px;
+  }
+  .grupo-mob-name {
+    font-family: var(--serif); font-size: 1rem;
+    font-weight: 500; letter-spacing: 0.04em; color: var(--text-muted);
+  }
+
+  /* ─── CTA ─── */
+  .cta-section {
+    padding: 140px 56px; text-align: center;
+    background: var(--bg);
+    position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 90% at 50% 50%, var(--lime-bg) 0%, transparent 65%);
+  }
+  .cta-section h2 {
+    font-family: var(--serif); font-size: clamp(2.5rem, 6vw, 5.5rem);
+    font-weight: 400; line-height: 1.05; letter-spacing: -0.02em;
+    margin-bottom: 28px; position: relative;
+  }
+  .cta-section h2 em { font-style: italic; color: var(--green); }
+  .cta-section p {
+    font-size: 0.95rem; color: var(--text-muted); max-width: 440px;
+    margin: 0 auto 48px; line-height: 1.85; position: relative; text-wrap: pretty;
+  }
+  .cta-btns { display: flex; gap: 16px; justify-content: center; position: relative; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 48px 56px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    background: var(--bg);
+  }
+  .footer-logo {
+    font-family: var(--serif); font-size: 1.1rem; font-weight: 700;
+    letter-spacing: 0.1em; color: var(--text); text-decoration: none;
+  }
+  .footer-logo span { color: var(--green); }
+  .footer-links { display: flex; gap: 32px; list-style: none; }
+  .footer-links a {
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-dim); text-decoration: none; transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--text-muted); }
+  .footer-copy { font-size: 0.66rem; color: var(--text-dim); letter-spacing: 0.06em; }
+
+  /* ─── FADE UP ─── */
+  .fade-up {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── TWEAKS PANEL ─── */
+  #tweaks-panel {
+    display: none; position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: #fff; border: 1px solid var(--border);
+    padding: 24px; width: 272px;
+    box-shadow: 0 16px 48px oklch(13% 0.025 110 / 0.14);
+  }
+  #tweaks-panel.visible { display: block; }
+  #tweaks-panel h3 {
+    font-family: var(--serif); font-size: 1rem; font-weight: 500;
+    margin-bottom: 20px; color: var(--text);
+  }
+  .tweak-row { margin-bottom: 18px; }
+  .tweak-row label {
+    display: block; font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;
+  }
+  .tweak-row select {
+    width: 100%; background: var(--bg-mid); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 12px;
+    font-family: var(--sans); font-size: 0.8rem; outline: none; cursor: pointer;
+  }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch {
+    width: 30px; height: 30px; border: 2px solid transparent;
+    cursor: pointer; transition: border-color 0.15s, transform 0.15s;
+  }
+  .swatch:hover, .swatch.active { border-color: var(--text); transform: scale(1.1); }
+
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    .hero { padding: 0 24px 60px; }
+    .hero-bottom { flex-direction: column; align-items: flex-start; }
+    .hero-scroll-hint { right: 24px; }
+    .intro-strip { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
+    .empresas, .participantes { grid-template-columns: 1fr; gap: 48px; padding: 80px 24px; }
+    .features { grid-template-columns: 1fr; }
+    .pull-quote { padding: 80px 24px; flex-direction: column; gap: 32px; }
+    .sobre { padding: 80px 24px; }
+    .sobre-grid { grid-template-columns: 1fr; }
+    .sobre-bottom { flex-direction: column; align-items: flex-start; }
+    .grupo-mob { text-align: left; }
+    .cta-section { padding: 100px 24px; }
+    .cta-btns { flex-direction: column; align-items: center; }
+    footer { flex-direction: column; align-items: flex-start; gap: 20px; padding: 40px 24px; }
+    hr.divider { margin: 0 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav" class="over-hero">
+  <a href="#" class="nav-logo">SYN<span>K</span></a>
+  <ul class="nav-links">
+    <li><a href="#empresas">Para Empresas</a></li>
+    <li><a href="#participantes">Para Participantes</a></li>
+    <li><a href="#sobre">Sobre Nós</a></li>
+    <li><a href="#voucher" class="btn-voucher">Resgatar Voucher</a></li>
+    <li><a href="login.html">Login</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo">
+    <div class="hero-photo-label">
+      foto de fundo<br>[ inserir imagem editorial aqui ]<br>formato recomendado: 1920 × 1080 px
+    </div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-eyebrow"><span style="color: rgb(255, 255, 255)">Direto ao ponto. <span style="color: rgb(167, 242, 50)">Direto na conta.</span></span></p>
+    <h1 class="hero-title">
+      Synk.<br><em>Conecte‑se.</em><br>Participe.
+    </h1>
+    <div class="hero-bottom">
+      <p class="hero-tagline">
+        No final, tem um <strong>agradecimento especial,</strong><br>
+        feito com carinho, para você aproveitar do seu jeito.
+      </p>
+      <a href="#voucher" class="btn-primary">Resgatar Voucher</a>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    <span>scroll</span>
+  </div>
+</section>
+
+<!-- INTRO STRIP -->
+<div class="intro-strip">
+  <p>"Uma ferramenta leve e confiável que centraliza, organiza e executa transferências de forma rápida, rastreável e transparente."</p>
+  <span class="strip-tag">Synk Pagamentos</span>
+</div>
+
+<!-- PARA EMPRESAS -->
+<section class="empresas" id="empresas">
+  <div class="empresas-text fade-up">
+    <p class="section-label">Para Empresas</p>
+    <h2 class="section-h2">A camada que<br>simplifica <em>tudo.</em></h2>
+    <p>
+      A Synk resolve um dos pontos mais críticos das operações de pesquisa: o pagamento de participantes. A partir de um sistema de vouchers que viram Pix ou gift cards, garantimos agilidade para empresas e uma experiência impecável para os consumidores.
+    </p>
+    <p style="margin-top:16px;">
+      Reduz riscos, elimina retrabalho e oferece previsibilidade fiscal e operacional — tornando o fluxo de pagamentos tão fluido quanto o restante do processo.
+    </p>
+  </div>
+  <div class="features fade-up">
+    <div class="feature">
+      <div class="feature-dot"></div>
+      <div class="feature-title">Vouchers Digitais</div>
+      <div class="feature-desc">Emissão e gestão centralizada de vouchers com rastreabilidade total.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-dot"></div>
+      <div class="feature-title">Ferramentas</div>
+      <div class="feature-desc">Escolha entre Synk Self ou Synk Full, veja a ferramenta que melhor atende ao seu projeto.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-dot"></div>
+      <div class="feature-title">Gift Cards</div>
+      <div class="feature-desc">Voucher Temáticos das maiores marcas do país para cada perfil de participante.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-dot"></div>
+      <div class="feature-title">Previsibilidade Fiscal</div>
+      <div class="feature-desc">Controle operacional e fiscal com transparência em cada etapa.</div>
+    </div>
+  </div>
+</section>
+
+<div class="pull-quote">
+  <div class="pull-quote-num">01</div>
+  <div class="pull-quote-body">
+    <blockquote>
+      "As maiores marcas do mundo desenvolvem suas criações pautadas na certeza de que, ao escutar seus consumidores, seus caminhos de inovação serão assegurados."
+    </blockquote>
+    <cite>Synk — Plataforma de Recompensas para Pesquisa</cite>
+  </div>
+</div>
+
+<!-- PARA PARTICIPANTES -->
+<section class="participantes" id="participantes">
+  <div class="participantes-text fade-up">
+    <p class="section-label">Para Participantes</p>
+    <h2 class="section-h2">Sua opinião<br>merece um <em>presente.</em></h2>
+    <p>
+      Você ajuda marcas e projetos a construir uma narrativa segura, humana e verdadeira. Em troca, resgate um presente — um símbolo ligado à sua gentileza de compartilhar seu tempo e opinião.
+    </p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Participe da pesquisa</div>
+          <div class="step-desc">Compartilhe sua opinião e contribua para projetos que fazem diferença.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Receba seu voucher</div>
+          <div class="step-desc">Você receberá um voucher exclusivo como forma de agradecimento.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Segurança</div>
+          <div class="step-desc">Preencha e valide que todas as informações estão corretas e alinhadas para que o processo seja fluído e seguro.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="voucher-wrap fade-up" id="voucher">
+    <div class="voucher-mockup" style="width: 400px">
+      <div class="voucher-tag">Resgate seu voucher</div>
+      <div class="voucher-subtitle">Informe o número do voucher seguido da senha. Atenção: para que se minimizem as chances de erro, ao preencher, prefira copiar e colar os códigos que você recebeu.</div>
+      <div class="voucher-field">
+        <label>Número do Voucher</label>
+        <input type="text" class="field-input" id="v-numero" placeholder="Exemplo: 123456789" autocomplete="off">
+      </div>
+      <div class="voucher-field">
+        <label>Senha do Voucher</label>
+        <input type="text" class="field-input" id="v-senha" placeholder="ex: aEx45$@" autocomplete="off">
+      </div>
+      <div class="voucher-field">
+        <label>Seu Nome Completo</label>
+        <input type="text" class="field-input" id="v-nome" placeholder="ex: Seu Nome Completo" autocomplete="off">
+      </div>
+      <div class="voucher-field">
+        <label>Instituição Bancária</label>
+        <input type="text" class="field-input" id="v-banco" placeholder="Ex: Itaú, Bradesco, Nubank" autocomplete="off">
+      </div>
+      <div class="voucher-field">
+        <label>Tipo de Chave Pix</label>
+        <div class="select-wrap">
+          <select class="field-input field-select" id="v-tipo-chave">
+            <option value="">Selecione…</option>
+            <option value="CPF">CPF</option>
+            <option value="CNPJ">CNPJ</option>
+            <option value="E-mail">E-mail</option>
+            <option value="Telefone">Celular (Telefone)</option>
+            <option value="Aleatória">Chave Aleatória (EVP)</option>
+          </select>
+          <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="voucher-field">
+        <label>Chave Pix</label>
+        <input type="text" class="field-input" id="v-chave" placeholder="informe sua chave pix" autocomplete="off">
+      </div>
+      <button class="voucher-btn" onclick="resgatarVoucher()">Resgatar Voucher</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── MODALS ── -->
+<div class="modal-backdrop" id="modal-backdrop" onclick="closeModal(event)">
+  <!-- Vencido -->
+  <div class="modal" id="modal-vencido" role="dialog" aria-hidden="true">
+    <button class="modal-close" onclick="closeModal()" aria-label="Fechar">×</button>
+    <div class="modal-icon icon-warn">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4M12 16h.01"/>
+      </svg>
+    </div>
+    <h3 class="modal-title">Voucher Vencido</h3>
+    <p class="modal-text">O prazo de resgate terminou. Entre em contato com a equipe responsável pelo seu projeto.</p>
+    <button class="modal-btn" onclick="closeModal()">Entendi</button>
+  </div>
+
+  <!-- Dados incorretos -->
+  <div class="modal" id="modal-incorretos" role="dialog" aria-hidden="true">
+    <button class="modal-close" onclick="closeModal()" aria-label="Fechar">×</button>
+    <div class="modal-icon icon-error">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M15 9l-6 6M9 9l6 6"/>
+      </svg>
+    </div>
+    <h3 class="modal-title">Dados Incorretos</h3>
+    <p class="modal-text">Verifique se todos os campos estão preenchidos corretamente. Confira o número do voucher, senha e dados bancários antes de continuar.</p>
+    <button class="modal-btn" onclick="closeModal()">Revisar Dados</button>
+  </div>
+
+  <!-- Sucesso -->
+  <div class="modal" id="modal-sucesso" role="dialog" aria-hidden="true">
+    <button class="modal-close" onclick="closeModal()" aria-label="Fechar">×</button>
+    <div class="modal-icon icon-success">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h3 class="modal-title">Tudo certo por aqui <span class="smiley">:)</span></h3>
+    <p class="modal-text">Estamos trabalhando para que você receba o quanto antes o seu presente. Seu pagamento cairá em até <strong>1 dia útil</strong>.</p>
+    <button class="modal-btn" onclick="closeModal()">Fechar</button>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SOBRE NÓS -->
+<section class="sobre" id="sobre">
+  <p class="section-label">Sobre Nós</p>
+  <h2 class="section-h2">Fluidez em cada<br><em>etapa</em> do processo.</h2>
+
+  <div class="sobre-grid">
+    <div class="sobre-card fade-up">
+      <div class="sobre-num">001 — O que fazemos</div>
+      <div class="sobre-title">Uma solução pensada para pesquisa</div>
+      <div class="sobre-text">
+        Atuamos diretamente nas operações de pesquisa, resolvendo o pagamento de participantes. A Synk funciona como uma camada leve e confiável que centraliza, organiza e executa transferências de forma rápida, rastreável e transparente.
+      </div>
+    </div>
+    <div class="sobre-card fade-up">
+      <div class="sobre-num">002 — Como funciona</div>
+      <div class="sobre-title">Vouchers que viram Pix ou gift cards</div>
+      <div class="sobre-text">
+        A partir de um sistema de vouchers, garantimos agilidade para empresas e uma experiência impecável para os consumidores. Reduzimos riscos, eliminamos retrabalho e oferecemos previsibilidade fiscal e operacional em cada etapa.
+      </div>
+    </div>
+    <div class="sobre-card fade-up">
+      <div class="sobre-num">003 — Nossa missão</div>
+      <div class="sobre-title">Tão fluido quanto o processo</div>
+      <div class="sobre-text">
+        Tornamos o fluxo de pagamentos tão fluido quanto o restante do processo de pesquisa. Cada transação é um gesto de valorização — de empresas que escutam, e de pessoas que se dispõem a compartilhar.
+      </div>
+    </div>
+  </div>
+
+  <div class="sobre-bottom">
+    <p class="sobre-quote"><span style="color: rgb(21, 21, 21)">"Feita para o mercado de pesquisa. Por quem conhece o que esta fazendo."</span></p>
+    <div class="grupo-mob">
+      <div class="grupo-mob-label">
+</div>
+      <div class="grupo-mob-name"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Tem um voucher?<br><em>Resgate agora.</em></h2>
+  <p>Rápido, seguro e direto ao ponto. Faça o resgate e aproveite o seu presente.</p>
+  <div class="cta-btns">
+    <a href="#voucher" class="btn-primary">Resgatar Voucher</a>
+    <a href="#sobre" class="btn-outline">Saiba Mais</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">SYN<span>K</span></a>
+  <ul class="footer-links">
+    <li><a href="#empresas">Empresas</a></li>
+    <li><a href="#participantes">Participantes</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#">Login</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 Synk.</div>
+</footer>
+
+<!-- TWEAKS PANEL -->
+<div id="tweaks-panel">
+  <h3>Tweaks</h3>
+  <div class="tweak-row">
+    <label>Cor de Destaque</label>
+    <div class="swatches">
+      <div class="swatch active" style="background:oklch(40% 0.13 130)" title="Verde (padrão)" onclick="setGreen('oklch(40% 0.13 130)','oklch(55% 0.16 128)','oklch(80% 0.22 122)','oklch(91% 0.12 122)',this)"></div>
+      <div class="swatch" style="background:oklch(32% 0.1 240)" title="Azul" onclick="setGreen('oklch(32% 0.1 240)','oklch(48% 0.15 240)','oklch(78% 0.18 220)','oklch(91% 0.08 220)',this)"></div>
+      <div class="swatch" style="background:oklch(38% 0.1 30)" title="Terracota" onclick="setGreen('oklch(38% 0.1 30)','oklch(52% 0.15 30)','oklch(76% 0.18 55)','oklch(93% 0.07 55)',this)"></div>
+      <div class="swatch" style="background:oklch(35% 0.1 300)" title="Violeta" onclick="setGreen('oklch(35% 0.1 300)','oklch(50% 0.18 300)','oklch(75% 0.2 295)','oklch(93% 0.07 295)',this)"></div>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <label>Tipografia do Título</label>
+    <select onchange="setFont(this.value)">
+      <option value="'Playfair Display', Georgia, serif">Playfair Display</option>
+      <option value="Georgia, serif">Georgia</option>
+      <option value="'DM Sans', Helvetica, sans-serif">DM Sans (sem serifa)</option>
+    </select>
+  </div>
+  <div class="tweak-row">
+    <label>Estilo do Botão</label>
+    <select onchange="setBtnStyle(this.value)">
+      <option value="0">Sem arredondamento</option>
+      <option value="4px">Leve (4px)</option>
+      <option value="24px">Arredondado (24px)</option>
+    </select>
+  </div>
+</div>
+
+<script>
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "green": "oklch(40% 0.13 130)",
+    "greenMid": "oklch(55% 0.16 128)",
+    "lime": "oklch(80% 0.22 122)",
+    "limeBg": "oklch(91% 0.12 122)",
+    "fontFamily": "'Playfair Display', Georgia, serif",
+    "btnRadius": "24px"
+  }/*EDITMODE-END*/;
+
+  // Apply tweaks from defaults
+  function applyAll(t) {
+    const r = document.documentElement.style;
+    r.setProperty('--green', t.green);
+    r.setProperty('--green-mid', t.greenMid);
+    r.setProperty('--lime', t.lime);
+    r.setProperty('--lime-bg', t.limeBg);
+    r.setProperty('--serif', t.fontFamily);
+    document.querySelectorAll('.btn-primary, .btn-outline, .btn-voucher, .voucher-btn').forEach(b => {
+      b.style.borderRadius = t.btnRadius;
+    });
+  }
+  applyAll(TWEAK_DEFAULTS);
+
+  function setGreen(g, gm, l, lb, el) {
+    const t = {...TWEAK_DEFAULTS, green: g, greenMid: gm, lime: l, limeBg: lb};
+    applyAll(t);
+    el.closest('.swatches').querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    window.parent.postMessage({type:'__edit_mode_set_keys', edits:{green:g,greenMid:gm,lime:l,limeBg:lb}}, '*');
+  }
+  function setFont(v) {
+    document.documentElement.style.setProperty('--serif', v);
+    window.parent.postMessage({type:'__edit_mode_set_keys', edits:{fontFamily:v}}, '*');
+  }
+  function setBtnStyle(v) {
+    document.querySelectorAll('.btn-primary,.btn-outline,.btn-voucher,.voucher-btn').forEach(b => b.style.borderRadius = v);
+    window.parent.postMessage({type:'__edit_mode_set_keys', edits:{btnRadius:v}}, '*');
+  }
+
+  // Nav scroll + hero detection
+  const nav = document.getElementById('main-nav');
+  const heroEl = document.querySelector('.hero');
+  function updateNav() {
+    const heroBottom = heroEl.getBoundingClientRect().bottom;
+    if (heroBottom > 80) {
+      nav.classList.add('over-hero');
+      nav.classList.remove('scrolled');
+    } else {
+      nav.classList.remove('over-hero');
+      nav.classList.add('scrolled');
+    }
+  }
+  window.addEventListener('scroll', updateNav, {passive: true});
+  updateNav();
+
+  // Fade-up
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        const siblings = [...e.target.parentElement.querySelectorAll('.fade-up:not(.visible)')];
+        const idx = siblings.indexOf(e.target);
+        setTimeout(() => e.target.classList.add('visible'), idx * 80);
+      }
+    });
+  }, {threshold: 0.1});
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+  // Voucher option toggle
+  function selectOpt(el) {
+    el.closest('.voucher-options').querySelectorAll('.voucher-option').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ─── VOUCHER RESGATE LOGIC ───
+  function resgatarVoucher() {
+    const numero = document.getElementById('v-numero');
+    const senha  = document.getElementById('v-senha');
+    const nome   = document.getElementById('v-nome');
+    const banco  = document.getElementById('v-banco');
+    const tipo   = document.getElementById('v-tipo-chave');
+    const chave  = document.getElementById('v-chave');
+    const all    = [numero, senha, nome, banco, tipo, chave];
+
+    // clear previous error states
+    all.forEach(el => el.classList.remove('error'));
+
+    // Demo triggers — try these to see each popup:
+    //   Número "000000000" → Voucher Vencido
+    //   Número "111111111" → Dados Incorretos
+    //   Qualquer outro número válido (preenchido) → Sucesso
+
+    // 1) Vencido
+    if (numero.value.trim() === '000000000') {
+      openModal('modal-vencido');
+      return;
+    }
+
+    // 2) Dados incoerentes — campos vazios, número curto, ou trigger demo "111111111"
+    const camposVazios = all.filter(el => !el.value.trim());
+    if (camposVazios.length > 0 || numero.value.trim() === '111111111' ||
+        numero.value.trim().length < 6 || senha.value.trim().length < 4) {
+      camposVazios.forEach(el => el.classList.add('error'));
+      openModal('modal-incorretos');
+      return;
+    }
+
+    // 3) Sucesso
+    openModal('modal-sucesso');
+  }
+
+  function openModal(id) {
+    document.querySelectorAll('.modal').forEach(m => m.classList.remove('visible'));
+    document.getElementById(id).classList.add('visible');
+    document.getElementById('modal-backdrop').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(e) {
+    if (e && e.target.closest('.modal') && !e.target.closest('.modal-close') && !e.target.closest('.modal-btn')) return;
+    document.getElementById('modal-backdrop').classList.remove('visible');
+    document.querySelectorAll('.modal').forEach(m => m.classList.remove('visible'));
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // Tweaks toggle
+  window.addEventListener('message', e => {
+    if (e.data?.type === '__activate_edit_mode') document.getElementById('tweaks-panel').classList.add('visible');
+    else if (e.data?.type === '__deactivate_edit_mode') document.getElementById('tweaks-panel').classList.remove('visible');
+  });
+  window.parent.postMessage({type: '__edit_mode_available'}, '*');
+</script>
+</body>
+</html>
