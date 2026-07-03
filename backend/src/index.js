@@ -127,13 +127,18 @@ app.post("/vouchers/create", async (req, res) => {
       return res.status(400).json({ message: "Nome do projeto e data de vencimento são obrigatórios." });
     }
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
+    const authOptions = {
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    };
+    if (process.env.GOOGLE_KEY_FILE) {
+      authOptions.keyFile = process.env.GOOGLE_KEY_FILE;
+    } else {
+      authOptions.credentials = {
         client_email: process.env.GOOGLE_CLIENT_EMAIL,
         private_key: getGooglePrivateKey(),
-      },
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
+      };
+    }
+    const auth = new google.auth.GoogleAuth(authOptions);
 
     const client = await auth.getClient();
     const spreadsheetId = SPREADSHEET_ID;
@@ -269,13 +274,18 @@ app.post("/vouchers/redeem", async (req, res) => {
         .status(400)
         .json({ message: "Tipo de Chave Pix é obrigatório" });
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
+    const authOptions = {
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    };
+    if (process.env.GOOGLE_KEY_FILE) {
+      authOptions.keyFile = process.env.GOOGLE_KEY_FILE;
+    } else {
+      authOptions.credentials = {
         client_email: process.env.GOOGLE_CLIENT_EMAIL,
         private_key: getGooglePrivateKey(),
-      },
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
+      };
+    }
+    const auth = new google.auth.GoogleAuth(authOptions);
 
     const client = await auth.getClient();
     const spreadsheetId = SPREADSHEET_ID;
