@@ -27,6 +27,18 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET;
 const SPREADSHEET_ID = "1rE3HM0vmBN6zcZSfp9OhOE6mHWKf0KHnJefNeSXHgWk";
 
+const getGooglePrivateKey = () => {
+  let key = process.env.GOOGLE_PRIVATE_KEY || "";
+  key = key.trim();
+  if (key.startsWith('"') && key.endsWith('"')) {
+    key = key.slice(1, -1);
+  }
+  if (key.startsWith("'") && key.endsWith("'")) {
+    key = key.slice(1, -1);
+  }
+  return key.replace(/\\n/g, "\n");
+};
+
 // app.use("/vouchers", voucherRoutes);
 // app.use("/auth", authRoutes);
 
@@ -95,7 +107,7 @@ app.post("/vouchers/create", async (req, res) => {
     const auth = new google.auth.GoogleAuth({
       credentials: {
         client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : '',
+        private_key: getGooglePrivateKey(),
       },
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
@@ -237,7 +249,7 @@ app.post("/vouchers/redeem", async (req, res) => {
     const auth = new google.auth.GoogleAuth({
       credentials: {
         client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : '',
+        private_key: getGooglePrivateKey(),
       },
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
