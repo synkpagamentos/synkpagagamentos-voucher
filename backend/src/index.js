@@ -36,7 +36,30 @@ const getGooglePrivateKey = () => {
   if (key.startsWith("'") && key.endsWith("'")) {
     key = key.slice(1, -1);
   }
-  return key.replace(/\\n/g, "\n");
+  key = key.replace(/\\n/g, "\n");
+
+  // Caso a chave tenha sido colada em uma linha unica (ou os newlines tenham virado espacos)
+  if (!key.includes("\n")) {
+    const header = "-----BEGIN PRIVATE KEY-----";
+    const footer = "-----END PRIVATE KEY-----";
+    let body = key;
+    if (body.startsWith(header)) {
+      body = body.slice(header.length);
+    }
+    if (body.endsWith(footer)) {
+      body = body.slice(0, -footer.length);
+    }
+    body = body.trim().replace(/\s+/g, ""); // remove todos os espacos e quebras de linha remanescentes
+    
+    // Reconstrói as linhas de 64 caracteres exigidas pelo formato PEM
+    const lines = [];
+    for (let i = 0; i < body.length; i += 64) {
+      lines.push(body.slice(i, i + 64));
+    }
+    key = `${header}\n${lines.join("\n")}\n${footer}`;
+  }
+  
+  return key;
 };
 
 // app.use("/vouchers", voucherRoutes);
