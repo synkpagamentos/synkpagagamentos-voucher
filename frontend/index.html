@@ -942,40 +942,75 @@
   }
 
   // ─── VOUCHER RESGATE LOGIC ───
-  function resgatarVoucher() {
+  const API_BASE = 'https://synkpagamentos-ry24v.ondigitalocean.app/synkpagagamentos-voucher-backend';
+
+  async function resgatarVoucher() {
     const numero = document.getElementById('v-numero');
     const senha  = document.getElementById('v-senha');
     const nome   = document.getElementById('v-nome');
     const banco  = document.getElementById('v-banco');
     const tipo   = document.getElementById('v-tipo-chave');
     const chave  = document.getElementById('v-chave');
+    const btn    = document.querySelector('.voucher-btn');
     const all    = [numero, senha, nome, banco, tipo, chave];
 
-    // clear previous error states
+    // Clear previous error states
     all.forEach(el => el.classList.remove('error'));
 
-    // Demo triggers — try these to see each popup:
-    //   Número "000000000" → Voucher Vencido
-    //   Número "111111111" → Dados Incorretos
-    //   Qualquer outro número válido (preenchido) → Sucesso
-
-    // 1) Vencido
-    if (numero.value.trim() === '000000000') {
-      openModal('modal-vencido');
-      return;
-    }
-
-    // 2) Dados incoerentes — campos vazios, número curto, ou trigger demo "111111111"
+    // Validação local dos campos obrigatórios
     const camposVazios = all.filter(el => !el.value.trim());
-    if (camposVazios.length > 0 || numero.value.trim() === '111111111' ||
-        numero.value.trim().length < 6 || senha.value.trim().length < 4) {
+    if (camposVazios.length > 0) {
       camposVazios.forEach(el => el.classList.add('error'));
       openModal('modal-incorretos');
       return;
     }
 
-    // 3) Sucesso
-    openModal('modal-sucesso');
+    btn.textContent = 'Validando…';
+    btn.disabled = true;
+
+    try {
+      const resp = await fetch(`${API_BASE}/vouchers/redeem`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          number:      numero.value.trim(),
+          password:    senha.value.trim(),
+          nome:        nome.value.trim(),
+          cpf:         nome.value.trim(), // campo nome funciona como CPF/identificação
+          banco:       banco.value.trim(),
+          chavePix:    chave.value.trim(),
+          tipoChavePix: tipo.value
+        })
+      });
+
+      const data = await resp.json();
+
+      btn.textContent = 'Resgatar Voucher';
+      btn.disabled = false;
+
+      if (resp.ok) {
+        openModal('modal-sucesso');
+        return;
+      }
+
+      // Mapeia mensagens do backend para os modais certos
+      const msg = (data.message || '').toLowerCase();
+      if (msg.includes('vencido') || msg.includes('prazo')) {
+        openModal('modal-vencido');
+      } else {
+        // Voucher não encontrado, senha inválida, já resgatado, campos faltando
+        document.querySelector('#modal-incorretos .modal-text').textContent =
+          data.message || 'Verifique se todos os dados estão corretos e tente novamente.';
+        openModal('modal-incorretos');
+      }
+
+    } catch (e) {
+      btn.textContent = 'Resgatar Voucher';
+      btn.disabled = false;
+      document.querySelector('#modal-incorretos .modal-text').textContent =
+        'Erro de conexão com o servidor. Verifique sua internet e tente novamente.';
+      openModal('modal-incorretos');
+    }
   }
 
   function openModal(id) {

@@ -25,6 +25,7 @@ connectDB();
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const SPREADSHEET_ID = "1rE3HM0vmBN6zcZSfp9OhOE6mHWKf0KHnJefNeSXHgWk";
 
 // app.use("/vouchers", voucherRoutes);
 // app.use("/auth", authRoutes);
@@ -100,7 +101,7 @@ app.post("/vouchers/create", async (req, res) => {
     });
 
     const client = await auth.getClient();
-    const spreadsheetId = "1XscG2P5Va1Xm5ssz2MoydFenVVW-FQScPJJHpLeaxLE";
+    const spreadsheetId = SPREADSHEET_ID;
 
     // Verifica se a aba com o nome do projeto já existe
     const sheetMetadata = await sheets.spreadsheets.get({
@@ -242,7 +243,7 @@ app.post("/vouchers/redeem", async (req, res) => {
     });
 
     const client = await auth.getClient();
-    const spreadsheetId = "1XscG2P5Va1Xm5ssz2MoydFenVVW-FQScPJJHpLeaxLE";
+    const spreadsheetId = SPREADSHEET_ID;
 
     // Obtém metadados de todas as abas para poder buscar em todas se necessário
     const sheetMetadata = await sheets.spreadsheets.get({ auth: client, spreadsheetId });

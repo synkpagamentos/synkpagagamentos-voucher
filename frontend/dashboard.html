@@ -335,6 +335,14 @@
 </div>
 
 <script>
+  const API_BASE = 'https://synkpagamentos-ry24v.ondigitalocean.app/synkpagagamentos-voucher-backend';
+
+  // ─── Route guard: redireciona pro login se não tiver token ───
+  const token = localStorage.getItem('synk_token');
+  if (!token) {
+    window.location.href = 'login.html';
+  }
+
   function fmtBRL(n) {
     return n.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
   }
@@ -343,11 +351,12 @@
   const next = new Date(); next.setDate(next.getDate() + 30);
   document.getElementById('vencimento').value = next.toISOString().split('T')[0];
 
-  function submeter() {
-    const val = parseFloat(document.getElementById('valor').value) || 0;
-    const qty = parseInt(document.getElementById('quantidade').value) || 0;
+  async function submeter() {
+    const val  = parseFloat(document.getElementById('valor').value) || 0;
+    const qty  = parseInt(document.getElementById('quantidade').value) || 0;
     const proj = document.getElementById('projeto').value.trim();
     const venc = document.getElementById('vencimento').value;
+    const btn  = document.querySelector('.btn-submit');
 
     let temErro = false;
     [['valor', val], ['quantidade', qty], ['projeto', proj], ['vencimento', venc]].forEach(([id, v]) => {
@@ -357,13 +366,45 @@
     });
     if (temErro) return;
 
-    const total = val * qty;
-    document.getElementById('success-msg').textContent =
-      `${qty} voucher${qty>1?'s':''} de ${fmtBRL(val)} cada — total de ${fmtBRL(total)} — cadastrados para o projeto "${proj}".`;
+    btn.textContent = 'Gerando vouchers…';
+    btn.disabled = true;
 
-    document.querySelector('.card').style.transition = 'opacity 0.3s';
-    document.querySelector('.card').style.opacity = '0';
-    setTimeout(() => { document.getElementById('success-overlay').classList.add('visible'); }, 300);
+    try {
+      const resp = await fetch(`${API_BASE}/vouchers/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('synk_token')}`
+        },
+        body: JSON.stringify({ value: val, quantity: qty, projectName: proj, expiresAt: venc })
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        alert(data.message || data.error || 'Erro ao criar vouchers. Tente novamente.');
+        btn.textContent = 'Cadastrar Vouchers';
+        btn.disabled = false;
+        return;
+      }
+
+      const total = val * qty;
+      document.getElementById('success-msg').textContent =
+        `${qty} voucher${qty>1?'s':''} de ${fmtBRL(val)} cada — total de ${fmtBRL(total)} — cadastrados para o projeto "${proj}".`;
+
+      document.querySelector('.card').style.transition = 'opacity 0.3s';
+      document.querySelector('.card').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('success-overlay').classList.add('visible');
+        btn.textContent = 'Cadastrar Vouchers';
+        btn.disabled = false;
+      }, 300);
+
+    } catch (e) {
+      alert('Erro de conexão com o servidor. Verifique se o backend está rodando.');
+      btn.textContent = 'Cadastrar Vouchers';
+      btn.disabled = false;
+    }
   }
 
   function novoCadastro() {
@@ -375,6 +416,8 @@
   }
 
   function sair() {
+    localStorage.removeItem('synk_token');
+    localStorage.removeItem('synk_email');
     window.location.href = 'login.html';
   }
 </script>
