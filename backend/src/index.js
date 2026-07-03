@@ -130,7 +130,13 @@ app.post("/vouchers/create", async (req, res) => {
     const authOptions = {
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     };
-    if (process.env.GOOGLE_KEY_FILE) {
+    if (process.env.GOOGLE_CREDS_JSON) {
+      try {
+        authOptions.credentials = JSON.parse(process.env.GOOGLE_CREDS_JSON);
+      } catch (err) {
+        console.error("Erro ao fazer parse de GOOGLE_CREDS_JSON:", err.message);
+      }
+    } else if (process.env.GOOGLE_KEY_FILE) {
       authOptions.keyFile = process.env.GOOGLE_KEY_FILE;
     } else {
       authOptions.credentials = {
@@ -277,7 +283,13 @@ app.post("/vouchers/redeem", async (req, res) => {
     const authOptions = {
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     };
-    if (process.env.GOOGLE_KEY_FILE) {
+    if (process.env.GOOGLE_CREDS_JSON) {
+      try {
+        authOptions.credentials = JSON.parse(process.env.GOOGLE_CREDS_JSON);
+      } catch (err) {
+        console.error("Erro ao fazer parse de GOOGLE_CREDS_JSON:", err.message);
+      }
+    } else if (process.env.GOOGLE_KEY_FILE) {
       authOptions.keyFile = process.env.GOOGLE_KEY_FILE;
     } else {
       authOptions.credentials = {
