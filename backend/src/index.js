@@ -130,7 +130,14 @@ app.post("/vouchers/create", async (req, res) => {
     const authOptions = {
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     };
-    if (process.env.GOOGLE_CREDS_JSON) {
+    if (process.env.GOOGLE_CREDS_BASE64) {
+      try {
+        const decoded = Buffer.from(process.env.GOOGLE_CREDS_BASE64, 'base64').toString('utf8');
+        authOptions.credentials = JSON.parse(decoded);
+      } catch (err) {
+        console.error("Erro ao decodificar GOOGLE_CREDS_BASE64:", err.message);
+      }
+    } else if (process.env.GOOGLE_CREDS_JSON) {
       try {
         authOptions.credentials = JSON.parse(process.env.GOOGLE_CREDS_JSON);
       } catch (err) {
@@ -283,7 +290,14 @@ app.post("/vouchers/redeem", async (req, res) => {
     const authOptions = {
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     };
-    if (process.env.GOOGLE_CREDS_JSON) {
+    if (process.env.GOOGLE_CREDS_BASE64) {
+      try {
+        const decoded = Buffer.from(process.env.GOOGLE_CREDS_BASE64, 'base64').toString('utf8');
+        authOptions.credentials = JSON.parse(decoded);
+      } catch (err) {
+        console.error("Erro ao decodificar GOOGLE_CREDS_BASE64:", err.message);
+      }
+    } else if (process.env.GOOGLE_CREDS_JSON) {
       try {
         authOptions.credentials = JSON.parse(process.env.GOOGLE_CREDS_JSON);
       } catch (err) {
