@@ -194,7 +194,7 @@ app.post("/vouchers/create", async (req, res) => {
         insertDataOption: "INSERT_ROWS",
         resource: {
           values: [
-            ["CÓDIGO VOUCHER", "SENHA VOUCHER", "VALOR", "RESGATADO", "CPF", "BANCO", "CHAVE PIX", "TIPO DE CHAVE PIX", "VALIDADE", "PROJETO"]
+            ["CÓDIGO VOUCHER", "SENHA VOUCHER", "VALOR", "RESGATADO", "NOME", "BANCO", "CHAVE PIX", "TIPO DE CHAVE PIX", "VALIDADE", "PROJETO", "DATA/HORA RESGATE"]
           ],
         },
       });
@@ -220,19 +220,20 @@ app.post("/vouchers/create", async (req, res) => {
       });
 
       await voucher.save();
-      // Inserindo na ordem: CÓDIGO (A), SENHA (B), VALOR (C), RESGATADO (D), CPF (E), BANCO (F), CHAVE PIX (G), TIPO PIX (H), VALIDADE (I), PROJETO (J)
-      // As colunas de resgate (E, F, G, H) ficam em branco quando o voucher é criado.
+      // Inserindo na ordem: CÓDIGO (A), SENHA (B), VALOR (C), RESGATADO (D), NOME (E), BANCO (F), CHAVE PIX (G), TIPO PIX (H), VALIDADE (I), PROJETO (J), DATA/HORA RESGATE (K)
+      // As colunas de resgate (E, F, G, H, K) ficam em branco quando o voucher é criado.
       createdVouchers.push([
         voucherNumber,                                    // A
         voucherPassword,                                  // B
         value,                                            // C
         "NÃO RESGATADO",                                  // D
-        "",                                               // E (CPF)
+        "",                                               // E (NOME)
         "",                                               // F (BANCO)
         "",                                               // G (CHAVE PIX)
         "",                                               // H (TIPO PIX)
         expirationDate.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }), // I (VALIDADE)
-        projectName                                       // J (PROJETO)
+        projectName,                                      // J (PROJETO)
+        ""                                                // K (DATA/HORA RESGATE)
       ]);
     }
 
@@ -402,18 +403,30 @@ app.post("/vouchers/redeem", async (req, res) => {
       }
     }
 
+    const timestampBrasil = new Date().toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+
+    const validade = currentRowData[8] || "";
+    const projeto = currentRowData[9] || "";
+
     // Concatena os novos valores de acordo com a ordem das colunas
-    // Colunas vão começar a atualizar a partir da Coluna D até a H
+    // Colunas vão atualizar a partir da Coluna D até a K
     const updatedRowData = [
       "RESGATADO",              // Coluna D: RESGATADO
-      cpf || nome || "-",       // Coluna E: CPF
+      nome || cpf || "-",       // Coluna E: NOME
       banco,                    // Coluna F: BANCO
       chavePix,                 // Coluna G: CHAVE PIX
       tipoChavePix,             // Coluna H: TIPO DE CHAVE PIX
+      validade,                 // Coluna I: VALIDADE (mantém)
+      projeto,                  // Coluna J: PROJETO (mantém)
+      timestampBrasil           // Coluna K: DATA/HORA RESGATE
     ];
 
-    // Atualiza das colunas D até H (na linha do voucher correspondente)
-    const updateRange = `${sheetName}!D${voucherRowIndex + 1}:H${voucherRowIndex + 1}`;
+    // Atualiza das colunas D até K (na linha do voucher correspondente)
+    const updateRange = `${sheetName}!D${voucherRowIndex + 1}:K${voucherRowIndex + 1}`;
 
     await sheets.spreadsheets.values.update({
       auth: client,
@@ -426,6 +439,7 @@ app.post("/vouchers/redeem", async (req, res) => {
     });
 
     voucher.isRedeemed = true;
+    voucher.redeemedAtString = timestampBrasil;
     await voucher.save();
 
     res.status(200).json({

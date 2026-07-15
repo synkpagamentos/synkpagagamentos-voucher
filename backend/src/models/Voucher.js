@@ -7,6 +7,7 @@ const voucherSchema = new mongoose.Schema({
   value: { type: String, required: true },
   quantity: { type: Number, default: 1 },
   isRedeemed: { type: Boolean, default: false },
+  redeemedAtString: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
