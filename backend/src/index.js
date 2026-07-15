@@ -199,40 +199,15 @@ app.post("/vouchers/create", async (req, res) => {
         },
       });
     } else {
-      // A aba já existe: verifica e corrige o cabeçalho se necessário
-      const headerRes = await sheets.spreadsheets.values.get({
+      // A aba já existe: sobrescreve o cabeçalho sempre com a versão correta
+      const correctHeader = ["CÓDIGO VOUCHER", "SENHA VOUCHER", "VALOR", "RESGATADO", "NOME", "BANCO", "CHAVE PIX", "TIPO DE CHAVE PIX", "VALIDADE", "PROJETO", "ASSINATURA DIGITAL"];
+      await sheets.spreadsheets.values.update({
         auth: client,
         spreadsheetId,
-        range: `${sheetName}!A1:Z1`,
+        range: `${sheetName}!A1:K1`,
+        valueInputOption: "RAW",
+        resource: { values: [correctHeader] },
       });
-      const headerRow = (headerRes.data.values || [[]])[0] || [];
-
-      let needsUpdate = false;
-      const correctHeader = ["CÓDIGO VOUCHER", "SENHA VOUCHER", "VALOR", "RESGATADO", "NOME", "BANCO", "CHAVE PIX", "TIPO DE CHAVE PIX", "VALIDADE", "PROJETO", "ASSINATURA DIGITAL"];
-
-      // Corrige CPF -> NOME na coluna E (índice 4)
-      if (headerRow[4] === "CPF") {
-        headerRow[4] = "NOME";
-        needsUpdate = true;
-      }
-      // Adiciona ASSINATURA DIGITAL na coluna K (índice 10) se não existir
-      if (!headerRow[10] || (headerRow[10] !== "ASSINATURA DIGITAL" && headerRow[10] !== "DATA/HORA RESGATE")) {
-        headerRow[10] = "ASSINATURA DIGITAL";
-        needsUpdate = true;
-      } else if (headerRow[10] === "DATA/HORA RESGATE") {
-        headerRow[10] = "ASSINATURA DIGITAL";
-        needsUpdate = true;
-      }
-
-      if (needsUpdate) {
-        await sheets.spreadsheets.values.update({
-          auth: client,
-          spreadsheetId,
-          range: `${sheetName}!A1:K1`,
-          valueInputOption: "RAW",
-          resource: { values: [correctHeader] },
-        });
-      }
     }
 
 
