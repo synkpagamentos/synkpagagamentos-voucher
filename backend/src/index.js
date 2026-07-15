@@ -194,11 +194,47 @@ app.post("/vouchers/create", async (req, res) => {
         insertDataOption: "INSERT_ROWS",
         resource: {
           values: [
-            ["CÓDIGO VOUCHER", "SENHA VOUCHER", "VALOR", "RESGATADO", "NOME", "BANCO", "CHAVE PIX", "TIPO DE CHAVE PIX", "VALIDADE", "PROJETO", "DATA/HORA RESGATE"]
+            ["CÓDIGO VOUCHER", "SENHA VOUCHER", "VALOR", "RESGATADO", "NOME", "BANCO", "CHAVE PIX", "TIPO DE CHAVE PIX", "VALIDADE", "PROJETO", "ASSINATURA DIGITAL"]
           ],
         },
       });
+    } else {
+      // A aba já existe: verifica e corrige o cabeçalho se necessário
+      const headerRes = await sheets.spreadsheets.values.get({
+        auth: client,
+        spreadsheetId,
+        range: `${sheetName}!A1:Z1`,
+      });
+      const headerRow = (headerRes.data.values || [[]])[0] || [];
+
+      let needsUpdate = false;
+      const correctHeader = ["CÓDIGO VOUCHER", "SENHA VOUCHER", "VALOR", "RESGATADO", "NOME", "BANCO", "CHAVE PIX", "TIPO DE CHAVE PIX", "VALIDADE", "PROJETO", "ASSINATURA DIGITAL"];
+
+      // Corrige CPF -> NOME na coluna E (índice 4)
+      if (headerRow[4] === "CPF") {
+        headerRow[4] = "NOME";
+        needsUpdate = true;
+      }
+      // Adiciona ASSINATURA DIGITAL na coluna K (índice 10) se não existir
+      if (!headerRow[10] || (headerRow[10] !== "ASSINATURA DIGITAL" && headerRow[10] !== "DATA/HORA RESGATE")) {
+        headerRow[10] = "ASSINATURA DIGITAL";
+        needsUpdate = true;
+      } else if (headerRow[10] === "DATA/HORA RESGATE") {
+        headerRow[10] = "ASSINATURA DIGITAL";
+        needsUpdate = true;
+      }
+
+      if (needsUpdate) {
+        await sheets.spreadsheets.values.update({
+          auth: client,
+          spreadsheetId,
+          range: `${sheetName}!A1:K1`,
+          valueInputOption: "RAW",
+          resource: { values: [correctHeader] },
+        });
+      }
     }
+
 
     const range = `${sheetName}!A1`;
 
@@ -220,7 +256,7 @@ app.post("/vouchers/create", async (req, res) => {
       });
 
       await voucher.save();
-      // Inserindo na ordem: CÓDIGO (A), SENHA (B), VALOR (C), RESGATADO (D), NOME (E), BANCO (F), CHAVE PIX (G), TIPO PIX (H), VALIDADE (I), PROJETO (J), DATA/HORA RESGATE (K)
+      // Inserindo na ordem: CÓDIGO (A), SENHA (B), VALOR (C), RESGATADO (D), NOME (E), BANCO (F), CHAVE PIX (G), TIPO PIX (H), VALIDADE (I), PROJETO (J), ASSINATURA DIGITAL (K)
       // As colunas de resgate (E, F, G, H, K) ficam em branco quando o voucher é criado.
       createdVouchers.push([
         voucherNumber,                                    // A
@@ -233,7 +269,7 @@ app.post("/vouchers/create", async (req, res) => {
         "",                                               // H (TIPO PIX)
         expirationDate.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }), // I (VALIDADE)
         projectName,                                      // J (PROJETO)
-        ""                                                // K (DATA/HORA RESGATE)
+        ""                                                // K (ASSINATURA DIGITAL)
       ]);
     }
 
@@ -334,7 +370,7 @@ app.post("/vouchers/redeem", async (req, res) => {
         const res = await sheets.spreadsheets.values.get({
           auth: client,
           spreadsheetId,
-          range: `${name}!A1:J`,
+          range: `${name}!A1:Z`,
         });
         return res.data.values || [];
       } catch (error) {
